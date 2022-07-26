@@ -1,6 +1,11 @@
+import 'dart:math';
+
+import 'package:english_words/english_words.dart';
+import 'package:englishapp/models/english_today.dart';
 import 'package:englishapp/values/app_assets.dart';
 import 'package:englishapp/values/app_colors.dart';
 import 'package:englishapp/values/app_styles.dart';
+import 'package:englishapp/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,13 +17,57 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  PageController _pageController = PageController();
+  late PageController _pageController;
+
+  List<EnglishToday> listWord = [];
+
+  List<int> fixedListRandom({int len = 1, int max = 128, int min = 1}) {
+    if (len > max || len < min) return [];
+
+    List<int> newList = [];
+
+    Random random = Random();
+    int count = 1;
+    while(count <= len) {
+      int val = random.nextInt(max);
+      if(newList.contains(val)) {
+        continue;
+      } else {
+        newList.add(val);
+        count++;
+      }
+    }
+
+    return newList;
+  }
+
+  getEnglishToday() {
+    List<String> newList = [];
+    List<int> randomList = fixedListRandom(len: 5, max: nouns.length);
+    randomList.forEach((index) {
+      newList.add(nouns[index]);
+    });
+
+    listWord = newList.map((nounWord) => EnglishToday(
+      "", nounWord, "", true
+    )).toList();
+  }
+
+  final GlobalKey<ScaffoldState> _scafoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    _pageController = PageController(viewportFraction: 0.9);
+    getEnglishToday();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
+      key: _scafoldKey,
       backgroundColor: AppColors.secondaryColor,
       appBar: AppBar(
         backgroundColor: AppColors.secondaryColor,
@@ -33,17 +82,17 @@ class _HomePageState extends State<HomePage> {
         ),
         leading: InkWell(
           onTap: () {
-            
+            _scafoldKey.currentState?.openDrawer();
           },
           child: Image.asset(AppAssets.menu),
         ),
       ),
       body: Container(
         width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               height: size.height * 1/10,
               alignment: Alignment.centerLeft,
               child: Text(
@@ -63,75 +112,76 @@ class _HomePageState extends State<HomePage> {
                     _currentIndex = index;
                   });
                 },
-                itemCount: 5,
+                itemCount: listWord.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(24))
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          alignment: Alignment.centerRight,
-                          child: Image.asset(AppAssets.heart)
-                        ),
-                        RichText(
+
+                  String word =  listWord[index].noun != null ?  listWord[index].noun! : '';
+
+                  String firstLetter = word.substring(0, 1);
+                  String leftLetter = word.substring(1, word.length);
+
+                  return Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(24)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(1, 2),
+                            blurRadius: 6
+                          )
+                        ]
+                      ),
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: RichText(
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.start,
                           text: TextSpan(
-                            style: TextStyle(
-                              fontFamily: FontFamily.sen,
-                              fontSize: 89,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                BoxShadow(
-                                  color: Colors.black38,
-                                  offset: Offset(3, 6),
-                                  blurRadius: 6
+                              style: const TextStyle(
+                                  fontFamily: FontFamily.sen,
+                                  fontSize: 89,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    BoxShadow(
+                                        color: Colors.black38,
+                                        offset: Offset(3, 6),
+                                        blurRadius: 6
+                                    )
+                                  ]
+                              ),
+                              text: firstLetter,
+                              children: [
+                                TextSpan(
+                                    style: const TextStyle(
+                                        fontFamily: FontFamily.sen,
+                                        fontSize: 52,
+                                        fontWeight: FontWeight.bold,
+                                        shadows: [
+                                          BoxShadow(
+                                              color: Colors.black38,
+                                              offset: Offset(3, 6),
+                                              blurRadius: 6
+                                          )
+                                        ]
+                                    ),
+                                    text: leftLetter
                                 )
                               ]
-                            ),
-                            text: 'B',
-                            children: [
-                              TextSpan(
-                                  style: TextStyle(
-                                      fontFamily: FontFamily.sen,
-                                      fontSize: 52,
-                                      fontWeight: FontWeight.bold,
-                                      shadows: [
-                                        BoxShadow(
-                                            color: Colors.black38,
-                                            offset: Offset(3, 6),
-                                            blurRadius: 6
-                                        )
-                                      ]
-                                  ),
-                                text: 'eautiful'
-                              )
-                            ]
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 24),
-                          child: Text(
-                            '"Think of all the beauty still left around you and be happy"',
-                            style: AppStyles.h4.copyWith(
-                              letterSpacing: 1,
-                              color: Colors.black
-                            )
-                          ),
-                        )
-                      ],
+                      ),
                     ),
                   );
                 }
               ),
             ),
             Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               alignment: Alignment.center,
               margin: const EdgeInsets.symmetric(vertical: 12),
               height: 10,
@@ -150,9 +200,27 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primaryColor,
         onPressed: () {
-
+          setState(() {
+            getEnglishToday();
+          });
         },
         child: Image.asset(AppAssets.exchange),
+      ),
+
+      drawer: Drawer(
+        child: Container(
+          color: AppColors.lightBlue,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 100),
+                child: AppButton(label: 'Your control', onTap: () {
+
+                }),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
