@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:english_words/english_words.dart';
 import 'package:englishapp/models/english_today.dart';
+import 'package:englishapp/page/control_page.dart';
 import 'package:englishapp/values/app_assets.dart';
 import 'package:englishapp/values/app_colors.dart';
 import 'package:englishapp/values/app_styles.dart';
@@ -212,10 +213,21 @@ class _HomePageState extends State<HomePage> {
           color: AppColors.lightBlue,
           child: Column(
             children: [
+              Container(
+                margin: const EdgeInsets.only(left: 16, top: 30),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Menu',
+                  style: AppStyles.h4.copyWith(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.only(top: 100),
+                padding: const EdgeInsets.only(top: 30),
                 child: AppButton(label: 'Your control', onTap: () {
-
+                  _scafoldKey.currentState?.closeDrawer();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ControlPage()));
                 }),
               )
             ],
