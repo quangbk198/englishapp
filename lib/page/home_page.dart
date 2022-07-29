@@ -6,8 +6,10 @@ import 'package:englishapp/page/control_page.dart';
 import 'package:englishapp/values/app_assets.dart';
 import 'package:englishapp/values/app_colors.dart';
 import 'package:englishapp/values/app_styles.dart';
+import 'package:englishapp/values/share_keys.dart';
 import 'package:englishapp/widgets/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -42,7 +44,9 @@ class _HomePageState extends State<HomePage> {
     return newList;
   }
 
-  getEnglishToday() {
+  getEnglishToday() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int len = prefs.getInt(ShareKeys.counter) ?? 5;
     List<String> newList = [];
     List<int> randomList = fixedListRandom(len: 5, max: nouns.length);
     randomList.forEach((index) {

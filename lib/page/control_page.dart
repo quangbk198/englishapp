@@ -1,6 +1,8 @@
 import 'package:englishapp/values/app_assets.dart';
 import 'package:englishapp/values/app_colors.dart';
+import 'package:englishapp/values/share_keys.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../values/app_styles.dart';
 
@@ -31,7 +33,10 @@ class _ControlPageState extends State<ControlPage> {
 
         ),
         leading: InkWell(
-          onTap: () {
+          onTap: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setInt(ShareKeys.counter, sliderValue.toInt());
+
             Navigator.pop(context);
           },
           child: Image.asset(AppAssets.leftArrow),
