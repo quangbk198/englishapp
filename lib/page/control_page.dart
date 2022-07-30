@@ -14,8 +14,23 @@ class ControlPage extends StatefulWidget {
 }
 
 class _ControlPageState extends State<ControlPage> {
-
   double sliderValue = 5;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initDefaultValue();
+  }
+
+  initDefaultValue() async {
+    prefs = await SharedPreferences.getInstance();
+    int value = prefs.getInt(ShareKeys.counter) ?? 5;
+    setState(() {
+      sliderValue = value.toDouble();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

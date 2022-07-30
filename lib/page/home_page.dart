@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:english_words/english_words.dart';
 import 'package:englishapp/models/english_today.dart';
+import 'package:englishapp/page/all_words_page.dart';
 import 'package:englishapp/page/control_page.dart';
 import 'package:englishapp/values/app_assets.dart';
 import 'package:englishapp/values/app_colors.dart';
@@ -21,7 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   late PageController _pageController;
-
+  final GlobalKey<ScaffoldState> _scafoldKey = GlobalKey<ScaffoldState>();
   List<EnglishToday> listWord = [];
 
   List<int> fixedListRandom({int len = 1, int max = 128, int min = 1}) {
@@ -31,9 +32,9 @@ class _HomePageState extends State<HomePage> {
 
     Random random = Random();
     int count = 1;
-    while(count <= len) {
+    while (count <= len) {
       int val = random.nextInt(max);
-      if(newList.contains(val)) {
+      if (newList.contains(val)) {
         continue;
       } else {
         newList.add(val);
@@ -48,23 +49,23 @@ class _HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int len = prefs.getInt(ShareKeys.counter) ?? 5;
     List<String> newList = [];
-    List<int> randomList = fixedListRandom(len: 5, max: nouns.length);
+    List<int> randomList = fixedListRandom(len: len, max: nouns.length);
     randomList.forEach((index) {
       newList.add(nouns[index]);
     });
 
-    listWord = newList.map((nounWord) => EnglishToday(
-      "", nounWord, "", true
-    )).toList();
+    setState(() {
+      listWord = newList
+          .map((nounWord) => EnglishToday("", nounWord, "", true))
+          .toList();
+    });
   }
-
-  final GlobalKey<ScaffoldState> _scafoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     _pageController = PageController(viewportFraction: 0.9);
-    getEnglishToday();
     super.initState();
+    getEnglishToday();
   }
 
   @override
@@ -79,11 +80,8 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         title: Text(
           'English today',
-          style: AppStyles.h3.copyWith(
-            color: AppColors.blackGray,
-            fontSize: 24
-          ),
-
+          style:
+              AppStyles.h3.copyWith(color: AppColors.blackGray, fontSize: 24),
         ),
         leading: InkWell(
           onTap: () {
@@ -97,108 +95,100 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              height: size.height * 1/10,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: size.height * 1 / 10,
               alignment: Alignment.centerLeft,
               child: Text(
                 'It is amazing how complete is the delision that beauty is goodness',
-                style: AppStyles.h5.copyWith(
-                  fontSize: 12,
-                  color: AppColors.blackGray
-                ),
+                style: AppStyles.h5
+                    .copyWith(fontSize: 12, color: AppColors.blackGray),
               ),
             ),
             Container(
-              height: size.height * 2/3,
+              height: size.height * 2 / 3,
               child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemCount: listWord.length,
-                itemBuilder: (context, index) {
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  itemCount: listWord.length,
+                  itemBuilder: (context, index) {
+                    String word = listWord[index].noun != null
+                        ? listWord[index].noun!
+                        : '';
 
-                  String word =  listWord[index].noun != null ?  listWord[index].noun! : '';
+                    String firstLetter = word.substring(0, 1);
+                    String leftLetter = word.substring(1, word.length);
 
-                  String firstLetter = word.substring(0, 1);
-                  String leftLetter = word.substring(1, word.length);
-
-                  return Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(24)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(1, 2),
-                            blurRadius: 6
-                          )
-                        ]
-                      ),
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
                       child: Container(
-                        alignment: Alignment.center,
-                        child: RichText(
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.start,
-                          text: TextSpan(
-                              style: const TextStyle(
-                                  fontFamily: FontFamily.sen,
-                                  fontSize: 89,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    BoxShadow(
-                                        color: Colors.black38,
-                                        offset: Offset(3, 6),
-                                        blurRadius: 6
-                                    )
-                                  ]
-                              ),
-                              text: firstLetter,
-                              children: [
-                                TextSpan(
-                                    style: const TextStyle(
-                                        fontFamily: FontFamily.sen,
-                                        fontSize: 52,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                          BoxShadow(
-                                              color: Colors.black38,
-                                              offset: Offset(3, 6),
-                                              blurRadius: 6
-                                          )
-                                        ]
-                                    ),
-                                    text: leftLetter
-                                )
-                              ]
+                        padding: EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(24)),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black26,
+                                  offset: Offset(1, 2),
+                                  blurRadius: 6)
+                            ]),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.start,
+                            text: TextSpan(
+                                style: const TextStyle(
+                                    fontFamily: FontFamily.sen,
+                                    fontSize: 89,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [
+                                      BoxShadow(
+                                          color: Colors.black38,
+                                          offset: Offset(3, 6),
+                                          blurRadius: 6)
+                                    ]),
+                                text: firstLetter,
+                                children: [
+                                  TextSpan(
+                                      style: const TextStyle(
+                                          fontFamily: FontFamily.sen,
+                                          fontSize: 52,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            BoxShadow(
+                                                color: Colors.black38,
+                                                offset: Offset(3, 6),
+                                                blurRadius: 6)
+                                          ]),
+                                      text: leftLetter)
+                                ]),
                           ),
                         ),
                       ),
+                    );
+                  }),
+            ),
+            _currentIndex >= 5
+                ? buildShowMore()
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    height: 10,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return buildIndicator(index == _currentIndex, size);
+                      },
                     ),
-                  );
-                }
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              alignment: Alignment.center,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              height: 10,
-              child: ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return buildIndicator(index == _currentIndex, size);
-                },
-              ),
-            ),
+                  ),
           ],
         ),
       ),
@@ -211,7 +201,6 @@ class _HomePageState extends State<HomePage> {
         },
         child: Image.asset(AppAssets.exchange),
       ),
-
       drawer: Drawer(
         child: Container(
           color: AppColors.lightBlue,
@@ -229,10 +218,13 @@ class _HomePageState extends State<HomePage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 30),
-                child: AppButton(label: 'Your control', onTap: () {
-                  _scafoldKey.currentState?.closeDrawer();
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ControlPage()));
-                }),
+                child: AppButton(
+                    label: 'Your control',
+                    onTap: () {
+                      _scafoldKey.currentState?.closeDrawer();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => ControlPage()));
+                    }),
               )
             ],
           ),
@@ -242,20 +234,47 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildIndicator(bool isActive, Size size) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 10),
-      width: isActive ? size.width * 1/5 : 24,
+      width: isActive ? size.width * 1 / 5 : 24,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.lightBlue : AppColors.lightGrey,
-        borderRadius: BorderRadius.all(const Radius.circular(12)),
-        boxShadow: const [
-          BoxShadow(
-              color: Colors.black38,
-              offset: Offset(2, 3),
-              blurRadius: 3
-          )
-        ]
-      ),
+          color: isActive ? AppColors.lightBlue : AppColors.lightGrey,
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          boxShadow: const [
+            BoxShadow(
+                color: Colors.black38, offset: Offset(2, 3), blurRadius: 3)
+          ]),
     );
+  }
+
+  Widget buildShowMore() {
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        alignment: Alignment.centerLeft,
+        child: Material(
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          color: AppColors.primaryColor,
+          elevation: 4,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AllWordsPage(words: listWord)
+                )
+              );
+            },
+            splashColor: Colors.black38,
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Text(
+                'Show more',
+                style: AppStyles.h5,
+              ),
+            ),
+          ),
+        ));
   }
 }
